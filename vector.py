@@ -29,7 +29,7 @@ class Vector(object):
 		new_coordinates = [x+y for x,y in zip(self.coordinates, v.coordinates)]
 		return Vector(new_coordinates)
 
-	def plus(self, v):
+	def minus(self, v):
 		new_coordinates = [x-y for x,y in zip(self.coordinates, v.coordinates)]
 		return Vector(new_coordinates)
 
@@ -82,12 +82,44 @@ class Vector(object):
 		return self.magnitude() < tolerance
 
 
+	def component_parallel_to(self, basis):
+		try:
+			u = basis.normalized()
+			weight = self.dot(u)
+			return u.times_scalar(weight)
+		except Exception as e:
+			if str(e) == self.CANNOT_NORMALIZE_ZERO_VECTOR_MSG:
+				raise Exception(self.NO_UNIQUE_PARALLEL_COMPONENT_MSG)
+			else:
+				raise(e)
+
+	def component_orthogonal_to(self, basis):
+		try:
+			projection = self.component_parallel_to(basis)
+			return self.minus(projection)
+		except Exception as e:
+			if str(e) == self.NO_UNIQUE_PARALLEL_COMPONENT_MSG:
+				raise Exception(self.NO_UNIQUE_ORTHOGONAL_COMPONENT_MSG)
+			else:
+				raise e
 
 
 
 
-v = Vector(['7.579', '7.88'])
-w = Vector(['22.737', '23.64'])
-print(v.is_parallel_to(w))
-print(v.is_orthogonal_to(w))
 
+
+
+v = Vector([3.309, 1.879])
+w = Vector([0.825, 2.036])
+print(v.component_parallel_to(w))
+
+v = Vector([-9.88, -3.264, -8.159])
+w = Vector([-2.155, -9.353, -9.473])
+print(v.component_orthogonal_to(w))
+
+v = Vector([3.009, -6.172, 3.692, -2.51])
+w = Vector([6.404, -9.144, 2.759, 8.718])
+vpar = v.component_parallel_to(w)
+vort = v.component_orthogonal_to(w)
+print(vpar)
+print(vort)
